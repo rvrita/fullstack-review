@@ -31,6 +31,7 @@ app.post('/repos', function (req, res) {
     // return Promise.all(allPromises); // MDN: use this if promises are dependent on each other
     return Promise.allSettled(allPromises);
   })
+  // for Promise.all:
   // .then((allRepos) => {
   //   res.send(`found ${allRepos.length} repos`);
   // })
@@ -41,8 +42,17 @@ app.post('/repos', function (req, res) {
 });
 
 app.get('/repos', function (req, res) {
-  // TODO - your code here!
   // This route should send back the top 25 repos
+  var query = db.repo.find().sort({stargazers: -1}).limit(25);
+  query.exec((err, list) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(list);
+      var topRepos = list.map(repo => { return repo._doc; });
+      res.send(topRepos);
+    }
+  })
 });
 
 let port = 1128;

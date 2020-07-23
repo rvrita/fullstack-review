@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/fetcher');
 
 let repoSchema = mongoose.Schema({
-  // TODO: your schema here!
   id: String,
   username: String,
   name: String,
@@ -10,16 +9,13 @@ let repoSchema = mongoose.Schema({
   stargazers: Number,
   isFork: Boolean
 });
-// repoSchema.index({ url: 1}, { unique: true});
 
 let Repo = mongoose.model('Repo', repoSchema);
 Repo.createIndexes();
 
 let save = (repoData) => {
-  // TODO: Your code here
   // This function should save a repo or repos to
   // the MongoDB
-
   var repo = new Repo({
     id: repoData.id,
     username: repoData.username,
@@ -32,3 +28,4 @@ let save = (repoData) => {
 }
 
 module.exports.save = save;
+module.exports.repo = Repo;
