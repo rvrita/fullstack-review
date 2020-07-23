@@ -2,10 +2,10 @@ const express = require('express');
 let app = express();
 const bodyParser = require('body-parser');
 const github = require('../helpers/github.js');
+const db = require('../database/index.js');
 
 app.use(express.static(__dirname + '/../client/dist'));
 app.use(bodyParser());
-
 app.post('/repos', function (req, res) {
   // TODO - your code here!
   // This route should take the github username provided
@@ -13,21 +13,31 @@ app.post('/repos', function (req, res) {
   // save the repo information in the database
   var username = req.body.username;
   github.getReposByUsername(username)
-  .then(data => { console.log(data); return data;} )
   .then(resp => {
-    var allRepos = [];
     var data = resp.data;
+    var allPromises = [];
+
     for (var i = 0; i < data.length; i++) {
       var userReposInfo = {};
+      userReposInfo.username = username;
       userReposInfo.id = data[i].id;
       userReposInfo.name = data[i].name;
       userReposInfo.url = data[i].html_url;
       userReposInfo.stargazers = data[i].stargazers_count;
-      allRepos.push(userReposInfo);
+      userReposInfo.fork = data[i].fork;
+
+      allPromises.push(db.save(userReposInfo));
     }
-    return allRepos;
+    // return Promise.all(allPromises); // MDN: use this if promises are dependent on each other
+    return Promise.allSettled(allPromises);
   })
-  .then(repos => console.log(repos));
+  // .then((allRepos) => {
+  //   res.send(`found ${allRepos.length} repos`);
+  // })
+  .then((results) => {
+    res.send(results);
+  })
+  .catch(() => res.sendStatus(400));
 });
 
 app.get('/repos', function (req, res) {

@@ -15,7 +15,7 @@ let getReposByUsername = (username) => {
     }
   };
 
-  return axios.get(options.url, options.header);
+  return axios.get(options.url, options.headers);
 
 }
 
